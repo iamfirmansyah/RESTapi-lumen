@@ -49,7 +49,7 @@ class UserController extends Controller
             ];
             return response()->json($resData, 201);
         } catch (\Exception $e) {
-            return $e;
+
             $resData = [
                 'status'    => "error",
                 'data'      => null,
@@ -63,7 +63,6 @@ class UserController extends Controller
         $this->validate($request, [
             'password'  => 'required|confirmed',
         ]);
-
         try {
             $credentials = [
                 'email'     => Auth::user()->email,
@@ -81,14 +80,16 @@ class UserController extends Controller
             User::where('id', Auth::user()->id)->update([
                 'password' => app('hash')->make($request->input('password')),
             ]);
+
             $resData = [
                 'status'  => "success",
                 'data'    =>  User::where('id', Auth::user()->id)->first(),
                 'message' => 'Data updated successfully'
             ];
             return response()->json($resData, 201);
+
         } catch (\Exception $e) {
-            return $e;
+
             $resData = [
                 'status'    => "error",
                 'data'      => null,

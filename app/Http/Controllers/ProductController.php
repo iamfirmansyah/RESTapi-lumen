@@ -58,7 +58,7 @@ class ProductController extends Controller
             return response()->json($resData, 200);
 
         } catch (\Exception $e) {
-            return $e;
+
             $resData = [
                 'status'    => "error",
                 'data'      => null,
@@ -74,9 +74,6 @@ class ProductController extends Controller
         }
         try {
             $product = Product::where('id',$id)->first();
-            if ($product == NULL) {
-                return response()->json(['status' => "error", 'message' => 'Data Empty!'], 401);
-            }
             $product->name     = $request->input('name');
             $product->stock    = $request->input('stock');
             $product->status   = "pending";
@@ -90,7 +87,7 @@ class ProductController extends Controller
             ];
             return response()->json($resData, 200);
         } catch (\Exception $e) {
-            return $e;
+
             $resData = [
                 'status'    => "error",
                 'data'      => null,
@@ -105,10 +102,7 @@ class ProductController extends Controller
             return response()->json(['status' => "error", 'message' => 'You are not a cashier!'], 401);
         }
         try {
-            $product = Product::where('id',$id)->first();
-            if($product == NULL ){
-                return response()->json(['status' => "error", 'message' => 'Data Empty!'], 401);
-            }
+            $product = Product::findorFail($id);
             $product->delete();
 
             $resData = [
@@ -118,7 +112,6 @@ class ProductController extends Controller
             ];
             return response()->json($resData, 200);
         } catch (\Exception $e) {
-            return $e;
             $resData = [
                 'status'    => "error",
                 'data'      => null,
@@ -129,27 +122,24 @@ class ProductController extends Controller
     }
     public function reviewProduct(Request $request, $id)
     {
-        $this->validate($request, [
-            'status'      => 'required',
-        ]);
         if (Auth::user()->role !== "supervisor") {
             return response()->json(['status' => "error", 'message' => 'You are not a supervisor!'], 401);
         }
-        try {
-            $product = Product::where('id', $id)->first();
-            if ($product == NULL) {
-                return response()->json(['status' => "error", 'message' => 'Data Empty!'], 401);
-            }
-            if ($request->input('status') === "rejected") {
-                $this->validate($request, [
-                    'status'      => 'required',
-                    'reason'      => 'required',
-                ]);
-                $message = "Products accepted by supervisors";
-            }else{
-                $message = "Products rejected by supervisors";
+        if ($request->input('status') === "rejected") {
+            $this->validate($request, [
+                'status'      => 'required',
+                'reason'      => 'required',
+            ]);
+            $message = "Products accepted by supervisors";
+        } else {
+            $this->validate($request, [
+                'status'      => 'required',
+            ]);
+            $message = "Products rejected by supervisors";
+        }
 
-            }
+        try {
+            $product = Product::findorFail($id);
             Notification::create([
                 'id'            => Str::random(36),
                 'title'         => $message,
@@ -170,7 +160,6 @@ class ProductController extends Controller
             ];
             return response()->json($resData, 200);
         } catch (\Exception $e) {
-            return $e;
             $resData = [
                 'status'    => "error",
                 'data'      => null,
