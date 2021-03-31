@@ -18,9 +18,13 @@ class ProductController extends Controller
     }
     public function listData()
     {
+        $data = Product::orderBy('created_at', 'DESC');
+        if(Auth::user()->role === "staff"){
+            $data->where('status', "accepted");
+        }
         $resData = [
             'status'  => "success",
-            'data'    =>  Product::orderBy('created_at','DESC')->get(),
+            'data'    => $data->paginate(10),
             'message' => 'successfully load data'
         ];
         return response()->json($resData, 200);
