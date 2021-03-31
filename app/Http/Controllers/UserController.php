@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Auth;
 use  App\User;
+use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
@@ -24,7 +25,77 @@ class UserController extends Controller
      */
     public function profile()
     {
-        return response()->json(['data' => Auth::user()], 200);
+        $resData = [
+            'status'  => "success",
+            'data'    =>  Auth::user(),
+            'message' => 'successfully load data'
+        ];
+        return response()->json($resData, 200);
+    }
+    public function updateProfile(Request $request)
+    {
+        $this->validate($request, [
+            'name'      => 'required|string',
+        ]);
+
+        try {
+            User::where('id',Auth::user()->id)->update([
+                'name'     => $request->input('name'),
+            ]);
+            $resData = [
+                'status'  => "success",
+                'data'    =>  User::where('id', Auth::user()->id)->first()  ,
+                'message' => 'Data updated successfully'
+            ];
+            return response()->json($resData, 201);
+        } catch (\Exception $e) {
+            return $e;
+            $resData = [
+                'status'    => "error",
+                'data'      => null,
+                'message'   => 'User Update Failed!'
+            ];
+            return response()->json($resData, 409);
+        }
+    }
+    public function updatePassword(Request $request)
+    {
+        $this->validate($request, [
+            'password'  => 'required|confirmed',
+        ]);
+
+        try {
+            $credentials = [
+                'email'     => Auth::user()->email,
+                'password'  => $request->password,
+            ];
+            if (Auth::attempt($credentials)) {
+                $resData = [
+                    'status'    => "error",
+                    'data'      => null,
+                    'message'   => 'Password sama dengan sebelumnya!'
+                ];
+                return response()->json($resData, 401);
+            }
+
+            User::where('id', Auth::user()->id)->update([
+                'password' => app('hash')->make($request->input('password')),
+            ]);
+            $resData = [
+                'status'  => "success",
+                'data'    =>  User::where('id', Auth::user()->id)->first(),
+                'message' => 'Data updated successfully'
+            ];
+            return response()->json($resData, 201);
+        } catch (\Exception $e) {
+            return $e;
+            $resData = [
+                'status'    => "error",
+                'data'      => null,
+                'message'   => 'User Registration Failed!'
+            ];
+            return response()->json($resData, 409);
+        }
     }
 
     /**
@@ -34,7 +105,12 @@ class UserController extends Controller
      */
     public function allUsers()
     {
-         return response()->json(['data' =>  User::all()], 200);
+        $resData = [
+            'status'  => "success",
+            'data'    =>  User::all(),
+            'message' => 'successfully load data'
+        ];
+        return response()->json($resData, 200);
     }
 
     /**
@@ -45,13 +121,22 @@ class UserController extends Controller
     public function singleUser($id)
     {
         try {
-            $user = User::findOrFail($id);
 
-            return response()->json(['data' => $user], 200);
+            $resData = [
+                'status'  => "success",
+                'data'    =>  User::findOrFail($id),
+                'message' => 'successfully load data'
+            ];
+            return response()->json($resData, 200);
 
         } catch (\Exception $e) {
+            $resData = [
+                'status'    => "error",
+                'data'      => null,
+                'message'   => 'user not found!'
+            ];
+            return response()->json($resData, 404);
 
-            return response()->json(['message' => 'user not found!'], 404);
         }
 
     }

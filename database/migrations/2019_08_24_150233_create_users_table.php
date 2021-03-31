@@ -32,4 +32,10 @@ class CreateUsersTable extends Migration
     {
         Schema::dropIfExists('users');
     }
+    public function run()
+    {
+        $this->call([
+            DatabaseSeeder::class,
+        ]);
+    }
 }

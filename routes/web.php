@@ -20,7 +20,18 @@ $router->get('/', function () use ($router) {
 $router->group(['prefix' => 'api'], function () use ($router) {
    $router->post('register', 'AuthController@register');
     $router->post('login', 'AuthController@login');
+    $router->post('profile/update', 'UserController@updateProfile');
+    $router->post('profile/update-password', 'UserController@updatePassword');
     $router->get('profile', 'UserController@profile');
     $router->get('users/{id}', 'UserController@singleUser');
     $router->get('users', 'UserController@allUsers');
+
 });
+$router->group(['prefix' => 'api/product'], function () use ($router) {
+    $router->get('/', 'ProductController@listData');
+    $router->post('/store', 'ProductController@storeData');
+    $router->post('/update/{id}', 'ProductController@updateData');
+    $router->post('/delete/{id}', 'ProductController@deleteData');
+    $router->post('/review-product/{id}', 'ProductController@reviewProduct');
+});
+

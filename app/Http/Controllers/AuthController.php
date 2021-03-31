@@ -34,10 +34,20 @@ class AuthController extends Controller
                 'email'    => $request->input('email'),
                 'password' => app('hash')->make($request->input('password')),
             ]);
-            return response()->json(['data' => User::where('id',$id)->get(), 'message' => 'CREATED'], 201);
+            $resData = [
+                'status'  => "success",
+                'data'    =>  User::where('id', $id)->get(),
+                'message' => 'Data created successfully'
+            ];
+            return response()->json($resData, 201);
 
         } catch (\Exception $e) {
-            return response()->json(['message' => 'User Registration Failed!'], 409);
+            $resData = [
+                'status'    => "error",
+                'data'      => null,
+                'message'   => 'User Registration Failed!'
+            ];
+            return response()->json($resData, 409);
         }
 
     }
@@ -60,7 +70,12 @@ class AuthController extends Controller
         $credentials = $request->only(['email', 'password']);
 
         if (! $token = Auth::attempt($credentials)) {
-            return response()->json(['message' => 'Unauthorized'], 401);
+            $resData = [
+                'status'    => "error",
+                'data'      => null,
+                'message'   => 'Unauthorized!'
+            ];
+            return response()->json($resData, 401);
         }
 
         return $this->respondWithToken($token);
