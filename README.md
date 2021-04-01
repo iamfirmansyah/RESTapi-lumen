@@ -6,8 +6,12 @@
 - `composer install`
 - `php artisan jwt:secret`
 - `php artisan migrate`
-- `php -S localhost:8000 -t public`
 - `php artisan db:seed`
+- `php -S localhost:8000 -t public`
+- `if error migration, import sql api_yesdok.sql`
+- `API Colection "API LUMEN"`
+
+
 
 # RESTapi-lumen
 Login Role (cashier - supervisor - staff)
